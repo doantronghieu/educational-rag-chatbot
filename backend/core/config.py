@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     database_url: str
 
     # LLM Configuration
-    llm_api_key: str
+    openai_api_key: str
     llm_model: str
 
     # Vector Store

@@ -22,7 +22,7 @@ class EmbeddingService:
             api_key: OpenAI API key, defaults to settings
             model: Embedding model name
         """
-        self.api_key = api_key or settings.llm_api_key
+        self.api_key = api_key or settings.openai_api_key
         self.model = model or settings.embedding_model
         self._embeddings = None
     

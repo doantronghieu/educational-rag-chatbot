@@ -16,9 +16,10 @@ dependencies = [
     "qdrant-client>=1.15.0",
     "typing>=3.10.0.0",
     "langchain-qdrant>=0.2.0",
-
+    "pymupdf>=1.26.3",
     # Development and Jupyter dependencies
     "ipykernel>=6.30.0",
     "jupyter>=1.1.1",
     "pip>=25.1.1",
+    "langchain-openai>=0.3.28",
 ]
