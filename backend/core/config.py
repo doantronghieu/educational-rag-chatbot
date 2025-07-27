@@ -17,6 +17,14 @@ class Settings(BaseSettings):
 
     # Vector Store
     vector_store_url: str
+    vector_store_api_key: str = ""
+    vector_store_timeout: int = 60
+    
+    # Embeddings
+    embedding_model: str = "text-embedding-ada-002"
+    
+    # Search defaults
+    default_search_k: int = 4
 
     # Storage
     storage_endpoint: str
