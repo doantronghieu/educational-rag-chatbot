@@ -1,0 +1,33 @@
+{
+  // Python interpreter configuration for consolidated root setup
+  "python.defaultInterpreterPath": "/Users/thung/Documents/Me/Coding/workspace/.venv/bin/python",
+
+  // Ensure Python extension uses correct interpreter
+  "python.terminal.activateEnvironment": true,
+
+  // Pylance settings to exclude node_modules from analysis
+  "python.analysis.exclude": ["**/node_modules/**", "**/.*/**"],
+  "python.analysis.ignore": ["**/node_modules/**"],
+
+  // Additional VS Code file exclusions for cleaner workspace
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true
+  },
+
+  // Search exclusions to prevent searching in node_modules
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/*.code-search": true
+  },
+
+  // Watcher exclusions for better performance
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true
+  }
+}

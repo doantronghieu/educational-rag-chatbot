@@ -42,3 +42,7 @@ next-env.d.ts
 
 **/.venv
 **/changes.patch
+**/generated
+**/clients/prisma
+**/__pycache__
+**/.ruff_cache
