@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>prd.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="rag-chatbot---product-requirements-document">RAG Chatbot - Product Requirements Document</h1>
+<h2 id="1-project-overview">1. Project Overview</h2>
+<h3 id="11-objective">1.1 Objective</h3>
+<p>Build a Retrieval-Augmented Generation (RAG) chatbot that provides accurate, contextual answers to user queries based on a provided knowledge base. The system is designed to demonstrate fundamental skills in RAG implementation, LLM integration, and basic problem-solving capabilities.</p>
+<h3 id="12-target-audience">1.2 Target Audience</h3>
+<p>Primary school students requiring age-appropriate communication with simple, clear, and engaging language.</p>
+<h3 id="13-success-criteria">1.3 Success Criteria</h3>
+<ul>
+<li>Achieve RAGAS evaluation scores above 80% across all key metrics</li>
+<li>Provide accurate, grounded responses within knowledge base scope</li>
+<li>Maintain appropriate tone for young learners</li>
+<li>Optional: Support multilingual interactions</li>
+</ul>
+<h2 id="2-functional-requirements">2. Functional Requirements</h2>
+<h3 id="21-core-rag-implementation">2.1 Core RAG Implementation</h3>
+<h4 id="211-knowledge-base-processing">2.1.1 Knowledge Base Processing</h4>
+<ul>
+<li><strong>Input</strong>: PDF format knowledge base</li>
+<li><strong>Processing</strong>: Extract, chunk, and index content for retrieval</li>
+<li><strong>Storage</strong>: Maintain searchable vector embeddings</li>
+</ul>
+<h4 id="212-embedding-based-retrieval">2.1.2 Embedding-Based Retrieval</h4>
+<ul>
+<li>Implement semantic search using vector embeddings</li>
+<li>Retrieve relevant context chunks for user queries</li>
+<li>Optimize retrieval accuracy and relevance</li>
+</ul>
+<h4 id="213-response-generation">2.1.3 Response Generation</h4>
+<ul>
+<li>Integrate pre-trained language model (OpenAI API or equivalent)</li>
+<li>Generate responses using retrieved context</li>
+<li>Ensure factual accuracy and groundedness</li>
+</ul>
+<h3 id="22-answer-quality--scope-management">2.2 Answer Quality &amp; Scope Management</h3>
+<h4 id="221-in-scope-responses">2.2.1 In-Scope Responses</h4>
+<ul>
+<li>Provide accurate answers based on knowledge base content</li>
+<li>Maintain factual consistency with source material</li>
+<li>Include relevant context and examples when appropriate</li>
+</ul>
+<h4 id="222-out-of-scope-handling">2.2.2 Out-of-Scope Handling</h4>
+<ul>
+<li>Detect queries outside knowledge base scope</li>
+<li>Respond with standardized message: &quot;I'm not sure how to answer that based on the information I have.&quot;</li>
+<li>Avoid hallucination or speculation beyond provided content</li>
+</ul>
+<h3 id="23-tone-adaptation">2.3 Tone Adaptation</h3>
+<ul>
+<li><strong>Language Level</strong>: Appropriate for primary school students (ages 6-12)</li>
+<li><strong>Communication Style</strong>:
+<ul>
+<li>Simple vocabulary and sentence structure</li>
+<li>Clear and direct explanations</li>
+<li>Engaging and friendly tone</li>
+<li>Age-appropriate examples and analogies</li>
+</ul>
+</li>
+</ul>
+<h3 id="24-multilingual-support-optional">2.4 Multilingual Support (Optional)</h3>
+<ul>
+<li><strong>Input Languages</strong>: Accept queries in Mandarin, Malay, or other specified languages</li>
+<li><strong>Translation Pipeline</strong>:
+<ul>
+<li>Translate input query to English for KB search</li>
+<li>Process using English knowledge base</li>
+<li>Translate response back to original query language</li>
+</ul>
+</li>
+<li><strong>Language Detection</strong>: Automatic identification of input language</li>
+</ul>
+<h2 id="3-technical-requirements">3. Technical Requirements</h2>
+<h3 id="31-architecture-components">3.1 Architecture Components</h3>
+<ul>
+<li><strong>Frontend</strong>: User interface for chat interactions</li>
+<li><strong>Backend</strong>: RAG processing engine with API endpoints</li>
+<li><strong>Vector Database</strong>: Embedding storage and retrieval system</li>
+<li><strong>LLM Integration</strong>: Connection to language model service</li>
+</ul>
+<h3 id="32-performance-requirements">3.2 Performance Requirements</h3>
+<ul>
+<li><strong>Response Time</strong>: &lt; 5 seconds for typical queries</li>
+<li><strong>Accuracy</strong>: Maintain high factual consistency</li>
+<li><strong>Scalability</strong>: Support multiple concurrent users</li>
+</ul>
+<h3 id="33-integration-requirements">3.3 Integration Requirements</h3>
+<ul>
+<li><strong>LLM Service</strong>: OpenAI API or equivalent model service</li>
+<li><strong>Embedding Model</strong>: Compatible vector embedding solution</li>
+<li><strong>Deployment</strong>: Cloud-ready containerized application</li>
+</ul>
+<h2 id="4-evaluation-framework">4. Evaluation Framework</h2>
+<h3 id="41-ragas-metrics">4.1 RAGAS Metrics</h3>
+<p>The system must achieve minimum 80% scores across:</p>
+<h4 id="411-faithfulness">4.1.1 Faithfulness</h4>
+<ul>
+<li>Measure factual consistency between generated answers and source content</li>
+<li>Ensure responses don't contradict knowledge base information</li>
+</ul>
+<h4 id="412-answer-relevancy">4.1.2 Answer Relevancy</h4>
+<ul>
+<li>Evaluate how well responses address the specific user query</li>
+<li>Measure appropriateness and directness of answers</li>
+</ul>
+<h4 id="413-context-precision">4.1.3 Context Precision</h4>
+<ul>
+<li>Assess accuracy of retrieved context chunks</li>
+<li>Measure relevance of selected knowledge base sections</li>
+</ul>
+<h4 id="414-context-recall">4.1.4 Context Recall</h4>
+<ul>
+<li>Evaluate completeness of context retrieval</li>
+<li>Ensure all relevant information is captured for response generation</li>
+</ul>
+<h3 id="42-additional-quality-metrics">4.2 Additional Quality Metrics</h3>
+<ul>
+<li><strong>User Experience</strong>: Age-appropriate communication assessment</li>
+<li><strong>Scope Adherence</strong>: Accuracy of in/out-of-scope detection</li>
+<li><strong>Multilingual Accuracy</strong>: Translation quality and consistency (if implemented)</li>
+</ul>
+<h2 id="5-deliverables">5. Deliverables</h2>
+<h3 id="51-planning-documentation">5.1 Planning Documentation</h3>
+<ul>
+<li><strong>Gantt Chart</strong>: Project timeline with milestones and dependencies</li>
+<li><strong>Architecture Design</strong>: System components and data flow diagrams</li>
+</ul>
+<h3 id="52-implementation">5.2 Implementation</h3>
+<ul>
+<li><strong>Source Code</strong>: Complete codebase with comprehensive documentation</li>
+<li><strong>Setup Instructions</strong>: Environment configuration and deployment guide</li>
+<li><strong>API Documentation</strong>: Endpoint specifications and usage examples</li>
+</ul>
+<h3 id="53-deployment">5.3 Deployment</h3>
+<ul>
+<li><strong>Live Application</strong>: Accessible chatbot interface</li>
+<li><strong>Access Details</strong>: URLs and usage instructions</li>
+<li><strong>Infrastructure</strong>: Deployment configuration and requirements</li>
+</ul>
+<h3 id="54-evaluation--documentation">5.4 Evaluation &amp; Documentation</h3>
+<ul>
+<li><strong>Technical Report</strong>: Implementation approach and architecture decisions</li>
+<li><strong>RAGAS Evaluation</strong>: Detailed scoring results and analysis</li>
+<li><strong>Requirements Compliance</strong>: Verification of all functional requirements</li>
+<li><strong>Testing Results</strong>: Performance metrics and user acceptance testing</li>
+</ul>
+<h3 id="55-optional-enhancements">5.5 Optional Enhancements</h3>
+<ul>
+<li><strong>UI/UX Design</strong>: Interface design documentation and user experience guidelines</li>
+<li><strong>User Testing</strong>: Feedback from target age group interactions</li>
+<li><strong>Performance Optimization</strong>: Recommendations for scaling and improvement</li>
+</ul>
+<h2 id="6-success-metrics">6. Success Metrics</h2>
+<h3 id="61-primary-metrics">6.1 Primary Metrics</h3>
+<ul>
+<li>RAGAS scores e 80% across all four evaluation dimensions</li>
+<li>Successful deployment with accessible user interface</li>
+<li>Complete documentation and setup instructions</li>
+</ul>
+<h3 id="62-secondary-metrics">6.2 Secondary Metrics</h3>
+<ul>
+<li>User satisfaction with age-appropriate communication</li>
+<li>System response time performance</li>
+<li>Successful multilingual functionality (if implemented)</li>
+</ul>
+<h3 id="63-quality-assurance">6.3 Quality Assurance</h3>
+<ul>
+<li>Comprehensive testing coverage</li>
+<li>Error handling and edge case management</li>
+<li>Code quality and maintainability standards</li>
+</ul>
+
+</body>
+</html>
