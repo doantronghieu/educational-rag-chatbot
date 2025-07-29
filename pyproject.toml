@@ -22,4 +22,5 @@ dependencies = [
     "jupyter>=1.1.1",
     "pip>=25.1.1",
     "langchain-openai>=0.3.28",
+    "ragas>=0.3.0",
 ]
