@@ -7,14 +7,14 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))  # 1 levels to root
 
 from fastapi import APIRouter, HTTPException
 from schemas.chat import ChatMessageRequest, ChatMessageResponse
-from core.dependencies import LlmDep, DatabaseDep
+from core.dependencies import DatabaseDep
 
 router = APIRouter()
 
 
 @router.post("/", response_model=ChatMessageResponse)
 async def send_message(
-    request: ChatMessageRequest, llm: LlmDep, db: DatabaseDep
+    request: ChatMessageRequest, db: DatabaseDep
 ):
     """Send a chat message and get AI response."""
     # TODO: Implement chat logic with RAG

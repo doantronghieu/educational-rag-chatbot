@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     vector_store_timeout: int = 60
     
     # Embeddings
-    embedding_model: str = "text-embedding-ada-002"
+    embedding_model: str
     
     # Search defaults
     default_search_k: int = 4

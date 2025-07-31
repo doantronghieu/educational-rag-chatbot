@@ -1,6 +1,9 @@
 """LangChain tools integration for function calling and structured outputs."""
+from pathlib import Path
+import sys
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from typing import Any, Callable, Dict, List, Optional, Type, Union, get_type_hints, Literal
+from typing import Any, Callable, Dict, List, Optional, Union
 from functools import wraps
 from pydantic import BaseModel, Field
 from langchain_core.tools import BaseTool, StructuredTool, tool
@@ -8,8 +11,7 @@ from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMe
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticToolsParser
 from langchain_core.language_models.chat_models import BaseChatModel
-# Import will be done locally to avoid circular imports
-
+from utils.decorators import handle_errors
 
 class ToolManager:
     """Unified tool management class for all tool-related operations."""
@@ -104,6 +106,7 @@ class ToolManager:
         
         return tool_list
     
+    @handle_errors("bind tools to model", return_on_error=None, raise_on_error=True)
     def bind_tools_to_model(
         self,
         model: Optional[Union[BaseChatModel]] = None,
@@ -121,10 +124,9 @@ class ToolManager:
         Returns:
             Model with tools bound
         """
-        # Create new model if none provided
         if model is None:
-            from libs.langchain.models import ChatModel
-            model = ChatModel(**model_kwargs)
+            from core.dependencies import get_llm
+            model = get_llm()
         
         # Get the actual LangChain model if it's a ChatModel wrapper
         actual_model = getattr(model, 'model', model)
@@ -200,8 +202,8 @@ class ToolManager:
         
         # Mode 2: Execute complete tool chain (high-level operation)
         elif input_text is not None:
-            from libs.langchain.models import ChatModel
-            model = ChatModel(**kwargs)
+            from core.dependencies import get_llm
+            model = get_llm()
             model_with_tools = self.bind_tools_to_model(model, tools)
             
             # Resolve tools for execution
@@ -246,8 +248,8 @@ class ToolManager:
         Returns:
             Configured model with few-shot prompting
         """
-        from libs.langchain.models import ChatModel
-        model = ChatModel(**model_kwargs)
+        from core.dependencies import get_llm
+        model = get_llm()
         model_with_tools = self.bind_tools_to_model(model, tools)
         
         # Create few-shot prompt
@@ -258,6 +260,7 @@ class ToolManager:
         return prompt | model_with_tools
     
     
+    @handle_errors("execute tool", return_on_error="Tool execution failed", raise_on_error=False)
     async def _execute_tool(
         self,
         tool: BaseTool,

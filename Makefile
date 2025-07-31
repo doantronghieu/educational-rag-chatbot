@@ -16,6 +16,13 @@ setup: ## Set up the development environment
 	@ln -sf ../.env frontend/.env.local
 	@echo "Installing dependencies..."
 	@$(MAKE) install
+	@echo "Setting up optional NLP models..."
+	@echo "📚 Downloading SpaCy English model (required for SpaCy text splitter)..."
+	@uv run python -m spacy download en_core_web_sm || echo "⚠️  SpaCy model download failed - SpaCy splitter will be skipped in tests"
+	@echo "🤖 Pre-caching SentenceTransformers model (improves test performance)..."
+	@uv run python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2'); print('✅ SentenceTransformers model cached')" || echo "⚠️  SentenceTransformers model caching failed - will download on first use"
+	@echo "📖 Downloading essential NLTK data..."
+	@uv run python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); print('✅ NLTK data downloaded')" || echo "⚠️  NLTK data download failed - NLTK splitter may not work fully"
 	@echo "Setting up infrastructure..."
 	@$(MAKE) infra-up
 	@echo "Setting up database..."

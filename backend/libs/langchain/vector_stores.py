@@ -1,90 +1,43 @@
 """
-LangChain vector store implementations using Qdrant.
-
-Example Usage:
-```python
-# Direct wrapper usage
-from qdrant_client import QdrantClient
-from libs.langchain.embeddings import get_default_embeddings
-from libs.langchain.vector_stores import QdrantVectorStoreWrapper
-
-client = QdrantClient("http://localhost:6333")
-embeddings = get_default_embeddings()
-
-# Create wrapper instance
-wrapper = QdrantVectorStoreWrapper(
-    client=client,
-    collection_name="documents", 
-    embedding=embeddings
-)
-
-# Add documents with metadata
-docs = [
-    Document(page_content="Python programming", metadata={"type": "programming"}),
-    Document(page_content="Web development", metadata={"type": "web"})
-]
-ids = wrapper.add_documents(docs)
-
-# Search without filters
-results = wrapper.similarity_search("query", k=3)
-
-# Search with simple dict filter (automatically converted to Qdrant Filter)
-filtered_results = wrapper.similarity_search(
-    "programming", 
-    k=3, 
-    filter={"type": "programming"}
-)
-
-# Search with advanced Qdrant Filter (for complex conditions)
-from qdrant_client.models import Filter, FieldCondition, MatchValue
-advanced_filter = Filter(
-    must=[
-        FieldCondition(key="type", match=MatchValue(value="programming"))
-    ]
-)
-advanced_results = wrapper.similarity_search("query", k=3, filter=advanced_filter)
-
-# Get retriever for chain integration
-retriever = wrapper.get_retriever(search_kwargs={"k": 5})
-```
+LangChain vector store implementation with unified service-level orchestration.
 """
+from pathlib import Path
+import sys
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from typing import List, Optional, Dict, Any, Union
+import logging
+import uuid
+from typing import List, Optional, Dict, Any, Union, Tuple
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
-from langchain_core.vectorstores import VectorStore
 from langchain_qdrant import QdrantVectorStore
-from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams, Filter, FieldCondition, MatchValue
+from qdrant_client.models import Filter, FieldCondition, MatchValue
+from clients.vector_store import VectorStoreClient
+from utils.decorators import handle_errors
+
+logger = logging.getLogger(__name__)
 
 
-class QdrantVectorStoreWrapper:
-    """Wrapper for Qdrant vector store with convenience methods."""
+class VectorStoreService:
+    """Unified vector store service with LangChain integration and multi-collection management."""
     
     def __init__(
         self,
-        client: QdrantClient,
-        collection_name: str,
-        embedding: Embeddings
+        vector_store_client: VectorStoreClient,
+        embedding_model: Embeddings,
+        default_collection: str = "documents"
     ):
-        """Initialize Qdrant vector store wrapper.
+        """Initialize vector store service.
         
         Args:
-            client: Qdrant client instance
-            collection_name: Name of the collection
-            embedding: Embedding model instance
+            vector_store_client: VectorStoreClient instance for collection management
+            embedding_model: Embedding model for text vectorization
+            default_collection: Default collection name
         """
-        self.client = client
-        self.collection_name = collection_name
-        self.embedding = embedding
-        
-        # Initialize the LangChain Qdrant vector store
-        # Note: Collection creation should be handled by VectorStoreClient
-        self.vector_store = QdrantVectorStore(
-            client=client,
-            collection_name=collection_name,
-            embedding=embedding
-        )
+        self.client = vector_store_client
+        self.embedding_model = embedding_model
+        self.default_collection = default_collection
+        self._vector_stores: Dict[str, QdrantVectorStore] = {}
     
     def _convert_filter(self, filter_dict: Optional[Dict[str, Any]]) -> Optional[Filter]:
         """Convert simple dict filter to Qdrant Filter format.
@@ -115,149 +68,275 @@ class QdrantVectorStoreWrapper:
         
         return Filter(must=conditions)
     
-    def add_documents(
+    
+    def _get_embedding_dimension(self) -> int:
+        """Get embedding dimension from the embedding model.
+        
+        Returns:
+            Vector dimension
+        """
+        
+        # Default to 1536 for OpenAI
+        return 1536
+    
+    async def get_vector_store(self, collection_name: Optional[str] = None) -> QdrantVectorStore:
+        """Get or create LangChain vector store for collection.
+        
+        Args:
+            collection_name: Collection name, defaults to default_collection
+            
+        Returns:
+            QdrantVectorStore instance
+        """
+        collection_name = collection_name or self.default_collection
+        
+        if collection_name not in self._vector_stores:
+            # Ensure collection exists before creating wrapper
+            vector_size = self._get_embedding_dimension()
+            await self.client.ensure_collection_exists(
+                collection_name=collection_name,
+                vector_size=vector_size
+            )
+            
+            # Create LangChain vector store using sync client
+            self._vector_stores[collection_name] = QdrantVectorStore(
+                client=self.client.sync_client,
+                collection_name=collection_name,
+                embedding=self.embedding_model
+            )
+        
+        return self._vector_stores[collection_name]
+    
+    # Document and text management methods
+    @handle_errors("Add documents")
+    async def add_documents(
         self,
         documents: List[Document],
-        ids: Optional[List[str]] = None,
-        **kwargs
+        collection_name: Optional[str] = None,
+        document_ids: Optional[List[str]] = None
     ) -> List[str]:
-        """Add documents to the vector store.
+        """Add documents to vector store with automatic ID generation.
         
         Args:
             documents: List of documents to add
-            ids: Optional list of document IDs
-            **kwargs: Additional arguments
+            collection_name: Target collection name
+            document_ids: Optional list of document IDs
             
         Returns:
             List of document IDs
         """
-        return self.vector_store.add_documents(documents, ids=ids, **kwargs)
+        collection_name = collection_name or self.default_collection
+        vector_store = await self.get_vector_store(collection_name)
+        
+        # Generate IDs if not provided
+        if not document_ids:
+            document_ids = [str(uuid.uuid4()) for _ in documents]
+        
+        # Add documents to vector store
+        result_ids = await vector_store.aadd_documents(documents, ids=document_ids)
+        
+        logger.info(
+            f"Added {len(documents)} documents to collection '{collection_name}'"
+        )
+        return result_ids
     
-    def similarity_search(
+    @handle_errors("Add texts")
+    async def add_texts(
+        self,
+        texts: List[str],
+        metadatas: Optional[List[Dict[str, Any]]] = None,
+        collection_name: Optional[str] = None,
+        document_ids: Optional[List[str]] = None
+    ) -> List[str]:
+        """Add texts with metadata to vector store.
+        
+        Args:
+            texts: List of text strings
+            metadatas: Optional list of metadata dicts
+            collection_name: Target collection name
+            document_ids: Optional list of document IDs
+            
+        Returns:
+            List of document IDs
+        """
+        # Convert texts to documents
+        documents = [
+            Document(
+                page_content=text,
+                metadata=metadatas[i] if metadatas else {}
+            )
+            for i, text in enumerate(texts)
+        ]
+        
+        return await self.add_documents(
+            documents=documents,
+            collection_name=collection_name,
+            document_ids=document_ids
+        )
+    
+    # Search methods
+    @handle_errors("Similarity search")
+    async def similarity_search(
         self,
         query: str,
         k: int = 4,
-        filter: Optional[Union[Dict[str, Any], Filter]] = None,
-        **kwargs
-    ) -> List[Document]:
-        """Search for similar documents.
+        collection_name: Optional[str] = None,
+        filter_conditions: Optional[Union[Dict[str, Any], Filter]] = None,
+        score_threshold: Optional[float] = None,
+        with_scores: bool = False
+    ) -> Union[List[Document], List[Tuple[Document, float]]]:
+        """Unified similarity search method.
         
         Args:
-            query: Query string
+            query: Search query
             k: Number of documents to return
-            filter: Optional metadata filter (dict or Qdrant Filter)
-            **kwargs: Additional arguments
+            collection_name: Collection to search in
+            filter_conditions: Optional metadata filter (dict or Qdrant Filter)
+            score_threshold: Minimum similarity score
+            with_scores: Whether to return scores with documents
             
         Returns:
-            List of similar documents
+            List of documents or (document, score) tuples based on with_scores
         """
+        collection_name = collection_name or self.default_collection
+        vector_store = await self.get_vector_store(collection_name)
+        
         # Convert dict filter to Qdrant Filter if needed
-        if isinstance(filter, dict):
-            filter = self._convert_filter(filter)
+        if isinstance(filter_conditions, dict):
+            filter_conditions = self._convert_filter(filter_conditions)
+        
+        if with_scores:
+            # Perform similarity search with scores
+            results = await vector_store.asimilarity_search_with_score(
+                query=query,
+                k=k,
+                filter=filter_conditions
+            )
             
-        return self.vector_store.similarity_search(
-            query, k=k, filter=filter, **kwargs
-        )
+            # Filter by score threshold if provided
+            if score_threshold is not None:
+                results = [
+                    (doc, score) for doc, score in results
+                    if score >= score_threshold
+                ]
+            
+            logger.info(
+                f"Found {len(results)} similar documents with scores for query in '{collection_name}'"
+            )
+        else:
+            # Perform similarity search without scores
+            results = await vector_store.asimilarity_search(
+                query=query,
+                k=k,
+                filter=filter_conditions
+            )
+            
+            logger.info(
+                f"Found {len(results)} similar documents for query in '{collection_name}'"
+            )
+        
+        return results
     
-    def similarity_search_with_score(
+    @handle_errors("Delete documents")
+    async def delete_documents(
         self,
-        query: str,
-        k: int = 4,
-        filter: Optional[Union[Dict[str, Any], Filter]] = None,
-        **kwargs
-    ) -> List[tuple[Document, float]]:
-        """Search for similar documents with similarity scores.
-        
-        Args:
-            query: Query string
-            k: Number of documents to return
-            filter: Optional metadata filter (dict or Qdrant Filter)
-            **kwargs: Additional arguments
-            
-        Returns:
-            List of (document, score) tuples
-        """
-        # Convert dict filter to Qdrant Filter if needed
-        if isinstance(filter, dict):
-            filter = self._convert_filter(filter)
-            
-        return self.vector_store.similarity_search_with_score(
-            query, k=k, filter=filter, **kwargs
-        )
-    
-    def delete(self, ids: List[str]) -> bool:
+        document_ids: List[str],
+        collection_name: Optional[str] = None
+    ) -> bool:
         """Delete documents by IDs.
         
         Args:
-            ids: List of document IDs to delete
+            document_ids: List of document IDs to delete
+            collection_name: Collection name
             
         Returns:
             True if successful
         """
-        return self.vector_store.delete(ids)
+        collection_name = collection_name or self.default_collection
+        vector_store = await self.get_vector_store(collection_name)
+        
+        # Delete documents
+        result = await vector_store.adelete(document_ids)
+        
+        logger.info(
+            f"Deleted {len(document_ids)} documents from collection '{collection_name}'"
+        )
+        return result
     
-    def get_retriever(self, **kwargs):
-        """Get a retriever instance for this vector store.
+    @handle_errors("Get retriever")
+    async def get_retriever(
+        self,
+        collection_name: Optional[str] = None,
+        search_kwargs: Optional[Dict[str, Any]] = None
+    ):
+        """Get a retriever for the vector store.
         
         Args:
-            **kwargs: Arguments for retriever configuration
+            collection_name: Collection name
+            search_kwargs: Search configuration
             
         Returns:
             VectorStoreRetriever instance
         """
-        return self.vector_store.as_retriever(**kwargs)
+        collection_name = collection_name or self.default_collection
+        vector_store = await self.get_vector_store(collection_name)
+        
+        # Default search kwargs
+        search_kwargs = search_kwargs or {"k": 4}
+        
+        retriever = vector_store.as_retriever(search_kwargs=search_kwargs)
+        
+        logger.info(f"Created retriever for collection '{collection_name}'")
+        return retriever
     
+    # Class factory methods for convenience
     @classmethod
     def from_documents(
         cls,
-        documents: List[Document],
-        embedding: Embeddings,
-        client: QdrantClient,
-        collection_name: str,
-        **kwargs
-    ) -> "QdrantVectorStoreWrapper":
-        """Create vector store from documents.
+        documents: List[Document],  # noqa: F401 - kept for API compatibility
+        vector_store_client,
+        embedding_model: Embeddings,
+        collection_name: str = "documents"
+    ) -> "VectorStoreService":
+        """Create service instance for adding documents.
         
         Args:
-            documents: List of documents
-            embedding: Embedding model
-            client: Qdrant client
+            documents: List of documents (for reference, actual addition needs async call)
+            vector_store_client: VectorStoreClient instance
+            embedding_model: Embedding model
             collection_name: Collection name
-            **kwargs: Additional arguments
             
         Returns:
-            QdrantVectorStoreWrapper instance
+            VectorStoreService instance
         """
-        instance = cls(
-            client=client,
-            collection_name=collection_name,
-            embedding=embedding
+        # Note: documents parameter kept for API compatibility but not used directly
+        # since add_documents is async and needs to be called separately
+        return cls(
+            vector_store_client=vector_store_client,
+            embedding_model=embedding_model,
+            default_collection=collection_name
         )
-        instance.add_documents(documents)
-        return instance
     
     @classmethod
     def from_texts(
         cls,
         texts: List[str],
-        embedding: Embeddings,
-        client: QdrantClient,
-        collection_name: str,
-        metadatas: Optional[List[Dict[str, Any]]] = None,
-        **kwargs
-    ) -> "QdrantVectorStoreWrapper":
-        """Create vector store from texts.
+        vector_store_client,
+        embedding_model: Embeddings,
+        collection_name: str = "documents",
+        metadatas: Optional[List[Dict[str, Any]]] = None
+    ) -> "VectorStoreService":
+        """Create service instance and add texts.
         
         Args:
             texts: List of text strings
-            embedding: Embedding model
-            client: Qdrant client
+            vector_store_client: VectorStoreClient instance
+            embedding_model: Embedding model
             collection_name: Collection name
             metadatas: Optional list of metadata dicts
-            **kwargs: Additional arguments
             
         Returns:
-            QdrantVectorStoreWrapper instance
+            VectorStoreService instance
         """
         documents = [
             Document(
@@ -268,7 +347,7 @@ class QdrantVectorStoreWrapper:
         ]
         return cls.from_documents(
             documents=documents,
-            embedding=embedding,
-            client=client,
+            vector_store_client=vector_store_client,
+            embedding_model=embedding_model,
             collection_name=collection_name
         )

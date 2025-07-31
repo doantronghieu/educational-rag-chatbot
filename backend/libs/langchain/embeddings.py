@@ -1,6 +1,9 @@
 """
 LangChain embedding utilities and wrappers.
 """
+from pathlib import Path
+import sys
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 import logging
 from typing import List, Optional
@@ -86,11 +89,3 @@ class EmbeddingService:
         return model_dimensions.get(self.model, 1536)
 
 
-def get_default_embeddings() -> Embeddings:
-    """Get default embeddings instance.
-    
-    Returns:
-        Configured embeddings instance
-    """
-    service = EmbeddingService()
-    return service.embeddings

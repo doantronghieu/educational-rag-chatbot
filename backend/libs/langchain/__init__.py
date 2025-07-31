@@ -9,3 +9,4 @@ from .embeddings import *
 from .retrievers import *
 from .prompts import *
 from .vector_stores import *
+from .text_splitters import *
