@@ -1,6 +1,8 @@
 # LangChain References
 
-## Models
+## Components
+
+### Models
 
 https://python.langchain.com/docs/integrations/chat/
 https://python.langchain.com/docs/concepts/chat_models/
@@ -16,7 +18,7 @@ https://python.langchain.com/docs/how_to/tool_streaming/
 https://python.langchain.com/docs/how_to/chat_model_rate_limiting/
 https://python.langchain.com/docs/how_to/tools_few_shot
 
-## Retrievers
+### Retrievers
 
 https://python.langchain.com/docs/how_to/vectorstore_retriever/
 https://python.langchain.com/docs/how_to/MultiQueryRetriever/
@@ -29,7 +31,7 @@ https://python.langchain.com/docs/how_to/parent_document_retriever/
 https://python.langchain.com/docs/how_to/self_query/
 https://python.langchain.com/docs/how_to/hybrid/
 
-## Text splitters
+### Text splitters
 
 https://python.langchain.com/docs/concepts/text_splitters/
 https://python.langchain.com/docs/how_to/recursive_text_splitter/
@@ -40,7 +42,7 @@ https://python.langchain.com/docs/how_to/recursive_json_splitter/
 https://python.langchain.com/docs/how_to/semantic-chunker/
 https://python.langchain.com/docs/how_to/split_by_token/
 
-## Ragas
+### Ragas
 
 https://docs.ragas.io/en/stable/getstarted/evals/
 https://docs.ragas.io/en/stable/getstarted/rag_eval/
@@ -63,3 +65,9 @@ https://docs.ragas.io/en/stable/experimental/tutorials/prompt/
 https://docs.ragas.io/en/stable/experimental/tutorials/rag/
 https://docs.ragas.io/en/stable/experimental/tutorials/workflow/
 https://docs.ragas.io/en/stable/experimental/core_concepts/metrics/
+
+## Workflow
+
+### RAG
+
+https://python.langchain.com/docs/tutorials/rag/
