@@ -66,6 +66,16 @@ https://docs.ragas.io/en/stable/experimental/tutorials/rag/
 https://docs.ragas.io/en/stable/experimental/tutorials/workflow/
 https://docs.ragas.io/en/stable/experimental/core_concepts/metrics/
 
+### Messages
+
+https://python.langchain.com/docs/concepts/messages/
+https://python.langchain.com/docs/how_to/few_shot_examples/
+https://python.langchain.com/docs/how_to/few_shot_examples_chat/
+https://python.langchain.com/docs/how_to/prompts_partial/
+https://python.langchain.com/docs/how_to/prompts_composition/
+https://python.langchain.com/docs/how_to/multimodal_prompts/
+https://python.langchain.com/docs/how_to/example_selectors/
+
 ## Workflow
 
 ### RAG
