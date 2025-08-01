@@ -1,4 +1,4 @@
-# HeyHi RAG Chatbot - Development Utilities
+# Educational Chatbot - Development Utilities
 
 .PHONY: help setup dev clean clean-all prisma-generate prisma-setup prisma-reset prisma-studio prisma-push infra-up infra-down infra-logs infra-status install test test-backend test-frontend lint lint-backend lint-frontend format format-backend format-frontend build quick-reset
 

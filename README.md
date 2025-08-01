@@ -1,4 +1,4 @@
-# HeyHi
+# Educational Chatbot
 
 A RAG (Retrieval-Augmented Generation) chatbot designed for primary school students, built with a modern full-stack architecture.
 

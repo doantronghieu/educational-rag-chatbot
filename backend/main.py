@@ -20,8 +20,8 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI app
 app = FastAPI(
-    title="HeyHi RAG Chatbot API",
-    description="A RAG chatbot API for primary school students",
+    title="Educational Chatbot API",
+    description="Educational Chatbot API for primary school students",
     version="0.1.0",
     debug=settings.debug,
     lifespan=lifespan,
@@ -40,13 +40,13 @@ app.add_middleware(
 @app.get("/")
 async def root():
     """Root endpoint."""
-    return {"message": "HeyHi RAG Chatbot API", "status": "ready"}
+    return {"message": "Educational Chatbot API", "status": "ready"}
 
 
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
-    return {"status": "healthy", "service": "heyhi-backend", "version": "0.1.0"}
+    return {"status": "healthy", "service": "backend", "version": "0.1.0"}
 
 
 # TODO: Add routers when implementing features
